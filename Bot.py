@@ -1,16 +1,18 @@
 import configparser
 import json
 import asyncio
+import re
 from datetime import datetime
 
 from telethon import TelegramClient
 from telethon.errors import SessionPasswordNeededError
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.types import PeerChannel
-from const import api_id, api_hash  # Importing directly from const
+from const import api_id, api_hash  
+from telelinks import link1, link2, phone
 
 
-# Some functions to parse JSON date
+
 class DateTimeEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, datetime):
@@ -20,22 +22,23 @@ class DateTimeEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
-# Reading Configs
+
 config = configparser.ConfigParser()
 config.read("config.ini")
 
-# Setting configuration values
+
 phone = config['Telegram']['phone']
 username = config['Telegram']['username']
 
-# Create the client and connect
+
 client = TelegramClient(username, api_id, api_hash)
 
-async def main(phone):
+async def scrape_messages(givenlink):
+    link = givenlink
     await client.start()
     print("Client Created")
 
-    # Ensure you're authorized
+    
     if not await client.is_user_authorized():
         await client.send_code_request(phone)
         try:
@@ -45,7 +48,8 @@ async def main(phone):
 
     me = await client.get_me()
 
-    user_input_channel = input('Enter entity (Telegram URL or entity ID):')
+    
+    user_input_channel = link
 
     if user_input_channel.isdigit():
         entity = PeerChannel(int(user_input_channel))
@@ -86,21 +90,37 @@ async def main(phone):
         json.dump(all_messages, outfile, cls=DateTimeEncoder)
 
 with client:
-    client.loop.run_until_complete(main(phone))
+    client.loop.run_until_complete(scrape_messages(link2))
 
 
-# Load the JSON data from the file
 with open('channel_messages.json', 'r') as file:
     data = json.load(file)
 
-# Open a new file to write the messages
+
 with open('extracted_messages.txt', 'w', encoding='utf-8') as output_file:
-    # Iterate through each item in the JSON data
+   
     for message in data:
-        if 'message' in message:  # Check if the 'message' field exists
-            # Write the message to the new file
+        if 'message' in message:
             output_file.write(message['message'] + '\n')
 
 print("Messages have been successfully written to 'extracted_messages.txt'")
+with open('channel_messages.json', 'r') as file:
+    data = json.load(file)
+
+url_pattern = re.compile(r'https?://[^\s]+')
 
 
+unique_links = set()
+
+
+for message in data:
+    if 'message' in message: 
+        urls = url_pattern.findall(message['message'])
+        unique_links.update(urls) 
+
+
+with open('extracted_links.txt', 'w', encoding='utf-8') as output_file:
+    for link in unique_links:
+        output_file.write(link + '\n')
+
+print(f"Extracted {len(unique_links)} unique links. They have been successfully written to 'extracted_links.txt'")

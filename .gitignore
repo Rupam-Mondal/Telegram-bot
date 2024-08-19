@@ -2,3 +2,7 @@ const.py
 extracted_messages.txt
 channel_messages.json
 YOUR_USERNAME.session
+.gitignore
+__pycache__
+telelinks.py
+extracted_links.txt
