@@ -93,21 +93,21 @@ with client:
     client.loop.run_until_complete(scrape_messages(link2))
 
 
+url_pattern = re.compile(r'https?://[^\s]+')
 with open('channel_messages.json', 'r') as file:
     data = json.load(file)
 
 
 with open('extracted_messages.txt', 'w', encoding='utf-8') as output_file:
-   
     for message in data:
-        if 'message' in message:
+        if 'message' in message and not url_pattern.search(message['message']):
             output_file.write(message['message'] + '\n')
 
 print("Messages have been successfully written to 'extracted_messages.txt'")
 with open('channel_messages.json', 'r') as file:
     data = json.load(file)
 
-url_pattern = re.compile(r'https?://[^\s]+')
+
 
 
 unique_links = set()
