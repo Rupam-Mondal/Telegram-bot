@@ -58,13 +58,16 @@ async def scrape_messages_and_download_images(givenlink):
     my_channel = await client.get_entity(entity)
 
     offset_id = 0
-    limit = 100
+    limit = 50
     all_messages = []
     total_messages = 0
     total_count_limit = 0
 
     image_count = 0  
-    max_images = 20 
+    max_images = 20
+
+    word_limit = 1000 
+    total_word_count = 0 
 
     while True:
         print("Current Offset ID is:", offset_id, "; Total Messages:", total_messages)
@@ -82,6 +85,9 @@ async def scrape_messages_and_download_images(givenlink):
             break
         messages = history.messages
         for message in messages:
+            if total_word_count >= word_limit: 
+                break
+
             all_messages.append(message.to_dict())
            
             if message.photo and image_count < max_images:
@@ -90,13 +96,14 @@ async def scrape_messages_and_download_images(givenlink):
                 await client.download_media(photo, file=file_path)
                 image_count += 1
             
-            if image_count >= max_images:
+
+            if image_count >= max_images or total_word_count >= word_limit:  # New: Check word limit condition
                 break
         offset_id = messages[-1].id
         total_messages = len(all_messages)
         if total_count_limit != 0 and total_messages >= total_count_limit:
             break
-        if image_count >= max_images:
+        if image_count >= max_images or total_word_count >= word_limit:  # New: Check word limit condition
             break
 
 
@@ -134,3 +141,4 @@ with open('extracted_links.txt', 'w', encoding='utf-8') as output_file:
         output_file.write(link + '\n')
 
 print(f"Extracted {len(unique_links)} unique links. They have been successfully written to 'extracted_links.txt'")
+

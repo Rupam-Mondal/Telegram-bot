@@ -6,3 +6,4 @@ YOUR_USERNAME.session
 __pycache__
 telelinks.py
 extracted_links.txt
+downloaded_images
