@@ -64,7 +64,7 @@ async def scrape_messages_and_download_images(givenlink):
     total_count_limit = 0
 
     image_count = 0  
-    max_images = 20  
+    max_images = 20 
 
     while True:
         print("Current Offset ID is:", offset_id, "; Total Messages:", total_messages)
@@ -105,7 +105,7 @@ async def scrape_messages_and_download_images(givenlink):
 
 
 with client:
-    client.loop.run_until_complete(scrape_messages_and_download_images(link4))
+    client.loop.run_until_complete(scrape_messages_and_download_images(link2))
 
 
 url_pattern = re.compile(r'https?://[^\s]+')
