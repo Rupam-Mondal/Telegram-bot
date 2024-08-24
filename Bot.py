@@ -64,7 +64,7 @@ async def scrape_messages_and_download_images(givenlink):
     total_count_limit = 0
 
     image_count = 0  
-    max_images = 20
+    max_images = 6
 
     word_limit = 1000 
     total_word_count = 0 
